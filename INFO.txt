@@ -1,0 +1,15 @@
+10 Steve Smith
+11 Stan Smith
+12 Todd Flanders
+13 Lisa Simpson
+14 Petter Griffin
+15 Bruce Lwanson
+16 Bonnie Swanson
+17 Bart Simpson
+18 Clev Brown
+19 Neil Goldman
+20 Neil Goldman
+21 Elmer Hartman
+22 Jim Kapplan
+23 Vending Machine
+24 Lenny Leonard
