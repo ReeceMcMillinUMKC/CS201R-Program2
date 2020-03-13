@@ -21,6 +21,9 @@ class Student {
         void SetLastName(string __studentName);
         void SetStudentGrades(vector<int> __gradesList);
 
+        //Utility
+        double FindAverage();
+
     private:
         int studentID;
         string studentFirstName;
@@ -75,4 +78,12 @@ void Student::SetLastName(string __studentName) {
 
 void Student::SetStudentGrades(vector<int> __gradesList) {
     studentGrades = __gradesList;
+}
+
+//Utility
+double Student::FindAverage() {
+    double quizGrade = ((studentGrades.at(0) * 10) + (studentGrades.at(1) * 10)) / 8.0;
+    double midtermGrade = studentGrades.at(2) / 4.0;
+    double finalExamGrade = studentGrades.at(3) / 2.0;
+    return quizGrade + midtermGrade + finalExamGrade;
 }
