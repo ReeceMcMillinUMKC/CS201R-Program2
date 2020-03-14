@@ -1,35 +1,4 @@
-#include <string>
-#include <vector>
-
-using namespace std;
-
-class Student {
-    public:
-        //Class Logistics
-        Student(int __studentID, string __studentName);
-
-        //Get Private Variables
-        int GetStudentID();
-        string GetFirstName();
-        string GetLastName();
-        string FullName();
-        vector<int> GetGrades();
-
-        //Set Private Variables
-        void SetStudentID(int __studentID);
-        void SetFirstName(string __studentName);
-        void SetLastName(string __studentName);
-        void SetStudentGrades(vector<int> __gradesList);
-
-        //Utility
-        double FindAverage();
-
-    private:
-        int studentID;
-        string studentFirstName;
-        string studentLastName;
-        vector<int> studentGrades;
-};
+#include "Student.h"
 
 //Class Logistics
 Student::Student(int __studentID, string __studentName) {
@@ -51,7 +20,7 @@ string Student::GetLastName() {
     return studentLastName;
 }
 
-string Student::FullName() {
+string Student::GetFullName() {
     return studentLastName.append(", ").append(studentFirstName);
 }
 
@@ -61,19 +30,26 @@ vector<int> Student::GetGrades() {
         
 //Set Private Variables
 void Student::SetStudentID(int __studentID) {
-    studentID = __studentID;
+    studentID = __studentID <= 0 ? -1 : __studentID;
 }
 
 void Student::SetFirstName(string __studentName) {
     stringstream sstream(__studentName);
     sstream >> studentFirstName;
+    sstream.clear();
 }
 
 void Student::SetLastName(string __studentName) {
-    stringstream sstream(__studentName);
-    string firstName;
-    sstream >> firstName;
-    sstream >> studentLastName;
+    //If a blank character exists in __studentname, we can assume the argument was passed as a full name.
+    //We want to be careful about accepting either option, as the file I/O constructs Student objects with full names.
+    if (__studentName.find(' ') != string::npos) {
+        stringstream sstream(__studentName);
+        string firstName;
+        sstream >> firstName;
+        sstream >> studentLastName;
+    } else {
+        studentLastName = __studentName;
+    }
 }
 
 void Student::SetStudentGrades(vector<int> __gradesList) {

@@ -3,7 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <vector>
+#include <exception>
 #include <unordered_map>
 #include <unordered_set>
 #include "Student.cpp"
@@ -22,6 +22,7 @@ vector<Student> ReadStudents(string filename);
 int MainMenu() {
     int selection;
     unordered_set<int> options{1, 2, 3, 4};
+
     cout << "Please make a selection:" << endl;
     cout << "\t(1) Print class roster" << endl;
     cout << "\t(2) Print class roster with their grades" << endl;
@@ -30,6 +31,8 @@ int MainMenu() {
     cout << "Enter your choice: ";
     cin >> selection;
 
+    //!cin checks whether the input has been deposited into selection.
+    //!options.count(selection) checks that selection is NOT in {1, 2, 3, 4}.
     while (!cin || !options.count(selection)) {
         cout << "\nError: Please enter a choice from [1, 2, 3, 4]\n" << endl;
         cin.clear();
@@ -43,14 +46,14 @@ int MainMenu() {
 void PrintClassRoster(vector<Student> vec) {
     cout << "The class has " << vec.size() << " students." << endl;
     for (Student &x : vec) {
-        cout << x.GetStudentID() << " " << x.FullName() << endl;
+        cout << x.GetStudentID() << " " << x.GetFullName() << endl;
     }
     cout << endl;
 }
 
 void PrintClassRosterWithGrades(vector<Student> vec) {
     for (Student &x : vec) {
-        cout << left << setw(18) << (x.FullName().append(": "));
+        cout << left << setw(18) << (x.GetFullName().append(": "));
         printVector(x.GetGrades());
     }
     cout << endl;
@@ -58,11 +61,8 @@ void PrintClassRosterWithGrades(vector<Student> vec) {
 
 void PrintClassRosterWithWeightedGrades(vector<Student> vec) {
     cout << setprecision(4);
-    const double QUIZWEIGHT = 10.0/220.0;
-    const double EXAMWEIGHT = 100.0/220.0;
     for (auto student : vec) {
-        cout << "Weighted average score of " << student.FullName() << " is ";
-        cout << student.FindAverage() << "\% out of 100%" << endl;
+        cout << "Weighted average score of " << student.GetFullName() << " is " << student.FindAverage() << "\% out of 100%" << endl;
     }
     cout << endl;
 }
@@ -75,6 +75,7 @@ void printVector(vector<int> vec) {
 }
 
 vector<int> splitString(string s) {
+    //Utility - Splits a string of whitespace-delimited digits into a vector<int>.
     stringstream sstream(s);
     string numString;
     vector<int> intVec;
@@ -85,7 +86,12 @@ vector<int> splitString(string s) {
 }
 
 unordered_map<int, vector<int>> ReadGrades(string filename) {
+    //Reads ID & Grade data from file, ensures file exists, and returns hash map.
+    //Map allows for constant-time association for Student objects read in ReadStudents().
     fstream fin(filename);
+    if (!fin.good()) {
+        throw (runtime_error("Error reading file - please ensure \"" + filename + "\" exists"));
+    }
     int id;
     string grades;
     unordered_map<int, vector<int>> idGradeMap;
@@ -94,22 +100,31 @@ unordered_map<int, vector<int>> ReadGrades(string filename) {
         getline(fin, grades);
         idGradeMap[id] = splitString(grades);
     }
+    fin.close();
     return idGradeMap;
 }
 
 vector<Student> ReadStudents(string filename, unordered_map<int, vector<int>> idGradeMap) {
     fstream fin(filename);
+    if (!fin.good()) {
+        throw (runtime_error("Error reading file - please ensure \"" + filename + "\" exists"));
+    }
     int id;
     string studentName;
     vector<Student> studentRoster;
 
     while (fin.good()) {
+        //Read ID, ignore the following whitespace
         fin >> id;
         fin.ignore();
         getline(fin, studentName);
+        //Pop a Student onto the stack
         Student newStudent = Student(id, studentName);
+        //Use the hash map idGradeMap to assign the appropriate grades from Grades.txt to each student
         newStudent.SetStudentGrades(idGradeMap[newStudent.GetStudentID()]);
+        //Finally, include the new Student in the roster we'll be returning to main().
         studentRoster.push_back(newStudent);
     }
+    fin.close();
     return studentRoster;
 }
